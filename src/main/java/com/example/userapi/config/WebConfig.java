@@ -15,8 +15,7 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
                         .allowedOrigins("https://habibguesmi.github.io",
-                                "http://localhost:4200",
-                                "http://sql7.freesqldatabase.com"
+                                "http://localhost:4200"
                                 )
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*");
