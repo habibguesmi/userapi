@@ -14,4 +14,4 @@ RUN chmod +x ./mvnw
 RUN ./mvnw clean install -DskipTests
 
 # Démarrage de l'application
-CMD ["java", "-jar", "target/*.jar"]
+CMD ["java", "-jar", "target/userapi-0.0.1-SNAPSHOT.jar"]
