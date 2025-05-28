@@ -1,17 +1,12 @@
-# Utilise une image Java officielle
+# syntax=docker/dockerfile:1
 FROM eclipse-temurin:17-jdk
 
-# Répertoire de travail
 WORKDIR /app
 
-# Copie les fichiers dans l'image
-COPY . /app
+COPY target/*.jar app.jar
 
-# Donne les droits d’exécution à mvnw
-RUN chmod +x ./mvnw
+EXPOSE 8080
 
-# Build du projet
-RUN ./mvnw clean install -DskipTests
+ENV PORT=8080
 
-# Démarrage de l'application
-CMD ["java", "-jar", "target/userapi-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "app.jar"]
