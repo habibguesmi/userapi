@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: userapi
-    env: docker
-    plan: free
-    dockerfilePath: ./Dockerfile
