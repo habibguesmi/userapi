@@ -16,17 +16,20 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         sessions.add(session);
+        System.out.println("New connection: " + session.getId());
         broadcastCount();
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         sessions.remove(session);
+        System.out.println("Connection closed: " + session.getId());
         broadcastCount();
     }
 
     private void broadcastCount() throws Exception {
         String message = "{\"count\":" + sessions.size() + "}";
+        System.out.println("Broadcasting to " + sessions.size() + " session(s)");
 
         synchronized (sessions) {
             for (WebSocketSession session : sessions) {
