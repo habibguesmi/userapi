@@ -17,7 +17,8 @@ public class WebConfig {
                         .allowedOrigins(
                                 "https://habibguesmi.github.io",
                                 "http://localhost:4200",
-                                "http://localhost:5173"
+                                "http://localhost:5173",
+                                "https://user-app-angular.onrender.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

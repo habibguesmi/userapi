@@ -17,7 +17,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 .setAllowedOrigins(
                         "https://habibguesmi.github.io",
                         "http://localhost:4200",
-                        "http://localhost:5173"
+                        "http://localhost:5173",
+                        "https://user-app-angular.onrender.com"
                 )
                 .withSockJS();
     }
