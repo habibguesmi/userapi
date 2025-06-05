@@ -14,7 +14,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new VisitorWebSocketHandler(), "/ws/visitors")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
-                .setAllowedOrigins("https://habibguesmi.github.io", "http://localhost:4200")
-                .withSockJS(); // Active SockJS
+                .setAllowedOrigins(
+                        "https://habibguesmi.github.io",
+                        "http://localhost:4200",
+                        "http://localhost:5173"
+                )
+                .withSockJS();
     }
 }
