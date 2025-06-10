@@ -21,7 +21,7 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
 
     public VisitorWebSocketHandler() {
         try {
-            File database = new File("geoip/GeoLite2-City.mmdb"); // Place la DB dans la racine ou adapte le path
+            File database = new File("geoip/GeoLite2-City.mmdb");
             dbReader = new DatabaseReader.Builder(database).build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,23 +52,29 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
         messageMap.put("count", sessions.size());
         messageMap.put("visitors", visitorsInfo.values());
         String message = new ObjectMapper().writeValueAsString(messageMap);
-        System.out.println("🔔 Broadcast WS message: " + message);
-
-        String message2 = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(messageMap);
 
         synchronized (sessions) {
             for (WebSocketSession session : sessions) {
                 if (session.isOpen()) {
-                    session.sendMessage(new TextMessage(message2));
+                    session.sendMessage(new TextMessage(message));
                 }
             }
         }
     }
 
     private String extractClientIp(WebSocketSession session) {
-        InetSocketAddress remoteAddress = session.getRemoteAddress();
-        if (remoteAddress != null) {
-            return remoteAddress.getAddress().getHostAddress();
+        try {
+            Object forwarded = session.getAttributes().get("X-Forwarded-For");
+            if (forwarded instanceof String fwd && !fwd.isEmpty()) {
+                return fwd.split(",")[0].trim(); // prendre la première IP si plusieurs
+            }
+
+            InetSocketAddress remoteAddress = session.getRemoteAddress();
+            if (remoteAddress != null) {
+                return remoteAddress.getAddress().getHostAddress();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return "Unknown";
     }
@@ -79,7 +85,6 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
         }
 
         try {
-            InetSocketAddress ipAddress = InetSocketAddress.createUnresolved(ip, 0);
             CityResponse response = dbReader.city(java.net.InetAddress.getByName(ip));
             String city = response.getCity().getName();
             String country = response.getCountry().getName();
@@ -89,7 +94,6 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    // Classe interne pour les infos visiteurs
     public static class VisitorInfo {
         private String ip;
         private String city;
