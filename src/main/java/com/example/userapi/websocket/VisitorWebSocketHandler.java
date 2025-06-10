@@ -48,9 +48,23 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void broadcastVisitors() throws Exception {
+        List<VisitorInfo> filteredVisitors = new ArrayList<>();
+
+        for (VisitorInfo info : visitorsInfo.values()) {
+            // Filtrer : garder uniquement IPv4 valides
+            boolean isIPv4 = info.getIp().matches("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
+
+            // Filtrer les "Inconnu" (ville ET pays)
+            boolean knownLocation = !(info.getCity().equalsIgnoreCase("Inconnu") && info.getCountry().equalsIgnoreCase("Inconnu"));
+
+            if (isIPv4 && knownLocation) {
+                filteredVisitors.add(info);
+            }
+        }
+
         Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put("count", sessions.size());
-        messageMap.put("visitors", visitorsInfo.values());
+        messageMap.put("count", filteredVisitors.size());
+        messageMap.put("visitors", filteredVisitors);
         String message = new ObjectMapper().writeValueAsString(messageMap);
 
         synchronized (sessions) {
@@ -61,6 +75,7 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
             }
         }
     }
+
 
     private String extractClientIp(WebSocketSession session) {
         try {
