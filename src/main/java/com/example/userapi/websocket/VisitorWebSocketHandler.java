@@ -6,6 +6,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -50,13 +51,15 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put("count", sessions.size());
         messageMap.put("visitors", visitorsInfo.values());
+        String message = new ObjectMapper().writeValueAsString(messageMap);
+        System.out.println("🔔 Broadcast WS message: " + message);
 
-        String message = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(messageMap);
+        String message2 = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(messageMap);
 
         synchronized (sessions) {
             for (WebSocketSession session : sessions) {
                 if (session.isOpen()) {
-                    session.sendMessage(new TextMessage(message));
+                    session.sendMessage(new TextMessage(message2));
                 }
             }
         }
