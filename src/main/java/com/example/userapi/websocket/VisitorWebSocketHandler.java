@@ -12,6 +12,7 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.io.InputStream;
 
 public class VisitorWebSocketHandler extends TextWebSocketHandler {
 
@@ -21,8 +22,14 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
 
     public VisitorWebSocketHandler() {
         try {
-            File database = new File("geoip/GeoLite2-City.mmdb");
-            dbReader = new DatabaseReader.Builder(database).build();
+            InputStream databaseStream = getClass().getClassLoader().getResourceAsStream("geoip/GeoLite2-City.mmdb");
+            if (databaseStream != null) {
+                dbReader = new DatabaseReader.Builder(databaseStream).build();
+                System.out.println("📦 Base GeoIP chargée depuis les ressources.");
+            } else {
+                System.err.println("❌ Fichier GeoLite2-City.mmdb introuvable dans les ressources.");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
