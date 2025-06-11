@@ -30,15 +30,19 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        sessions.add(session);
+        System.out.println("✅ Nouvelle connexion WebSocket");
 
         String ip = extractClientIp(session);
         VisitorInfo info = lookupVisitorInfo(ip);
 
+        System.out.println("👤 IP détectée : " + ip + " | Ville: " + info.getCity() + ", Pays: " + info.getCountry());
+
+        sessions.add(session);
         visitorsInfo.put(session.getId(), info);
 
         broadcastVisitors();
     }
+
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
@@ -78,21 +82,24 @@ public class VisitorWebSocketHandler extends TextWebSocketHandler {
 
 
     private String extractClientIp(WebSocketSession session) {
-        try {
-            Object forwarded = session.getAttributes().get("X-Forwarded-For");
-            if (forwarded instanceof String fwd && !fwd.isEmpty()) {
-                return fwd.split(",")[0].trim(); // prendre la première IP si plusieurs
-            }
-
-            InetSocketAddress remoteAddress = session.getRemoteAddress();
-            if (remoteAddress != null) {
-                return remoteAddress.getAddress().getHostAddress();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<String> xfHeaders = session.getHandshakeHeaders().get("X-Forwarded-For");
+        if (xfHeaders != null && !xfHeaders.isEmpty()) {
+            String forwardedIp = xfHeaders.get(0).split(",")[0].trim();
+            System.out.println("📡 IP via X-Forwarded-For: " + forwardedIp);
+            return forwardedIp;
         }
+
+        InetSocketAddress remoteAddress = session.getRemoteAddress();
+        if (remoteAddress != null) {
+            String ip = remoteAddress.getAddress().getHostAddress();
+            System.out.println("📡 IP via RemoteAddress: " + ip);
+            return ip;
+        }
+
+        System.out.println("⚠️ Impossible de déterminer l'IP");
         return "Unknown";
     }
+
 
     private VisitorInfo lookupVisitorInfo(String ip) {
         if (dbReader == null || ip.equals("Unknown")) {
